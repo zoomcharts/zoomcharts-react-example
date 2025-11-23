@@ -1,5 +1,4 @@
-
-## Set up the Development Enviroment
+## Set up the Development Environment
 
 You need to set up your development before you can do anything.
 Install `Node.js®` and `npm` if they are not already on your machine.
@@ -10,166 +9,223 @@ Create new project folder and go to project directory
 ```
 mkdir my-zoomchartsApp && cd my-zoomchartsApp
 ```
-Create a package.json file
-```
-npm init
-```
-If you want to skip all the questions, add the -y flag
-```
-npm init -y
-```
 
-## Install webpack
+## Create a Vite + React project
 
-Install `webpack`, `webpack-cli` and `copy-webpack-plugin` as a dev dependency 
+Create a new Vite project with React and TypeScript template
 ```
-npm i webpack webpack-cli webpack-dev-server copy-webpack-plugin --save-dev
-```
-Add the following scripts to your package.json
-```json
- "scripts": {
-   "build": "webpack --mode production",
-   "start": "webpack-dev-server --mode development --open"
- },
- ```
- 
-## Install React and Babel
-
-Install `react` and `react-dom` as a dependency
-```
-npm i react react-dom --save
-```
-Install `babel` `babel-core`, `babel-loader`, `babel-preset-env` and `babel-preset-react` as a dev dependency.
-```
-npm i babel babel-core babel-loader babel-preset-env babel-preset-react --save-dev
+npm create vite@latest . -- --template react-ts
 ```
 
-## Create src folder with index.js
-
-The `index.js` file will be as entry point in application.
-
-## Create and set up a webpack.config.js file
-
-```javascript
-const path = require('path');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
-module.exports = {
- entry: [
-   './src/index.js',
- ],
-
- output: {
-   path: path.resolve(__dirname, 'dist'),
-   filename: 'main.js'
- },
-
- resolve: {
-   extensions: ['.js', '.jsx'],
- },
-
- module: {
-   rules: [
-     {
-       test: /\.(js|jsx)$/,
-       exclude: /node_modules/,
-       use: [
-         {
-           loader: 'babel-loader',
-           options: {
-             presets: ['env', 'react']
-           }
-         }
-       ],
-     },
-   ],
- },
-
- plugins: [
-   new CopyWebpackPlugin([
-     {
-       from: './node_modules/@dvsl/zoomcharts/lib/assets',
-       to: 'assets'
-     }
-   ]),
- ],
-
- devServer: {
-   contentBase: path.join(__dirname),
-   compress: true,
-   port: 9000
- }
-};
+Install dependencies
+```
+npm install
 ```
 
-## Create ZoomCharts component
+## Install @dvsl/react-zoomcharts
 
-Install `ZoomCharts library` via npm
+Install the `@dvsl/react-zoomcharts` package
 ```
-npm  install --save @dvsl/zoomcharts
+npm install --save @dvsl/react-zoomcharts
 ```
 
-### src/ZoomCharts.js
+## Set up ZoomCharts component
 
-Create new react component named `ZoomCharts`.
-```javascript
-import React, { Component } from 'react';
-import zc from "@dvsl/zoomcharts";
+### src/ZoomCharts.tsx
 
-let TimeChart = zc.TimeChart;
+Create a ZoomCharts component:
+```tsx
+import { Chart, type ChartType } from '@dvsl/react-zoomcharts';
+import '@dvsl/react-zoomcharts/zc.css';
 
-// Zoomcharts license and license key
-window.ZoomChartsLicense = "";
-window.ZoomChartsLicenseKey = "";
-
-class ZoomCharts extends Component {
- componentDidMount() {
-   //
-   var t = new TimeChart({
-     container: document.getElementById("chartTimeChart"),
-     area: { height: 350 },
-     data: {
-       preloaded: {
-         values: [
-           ["2017-01-09 00:00:00", 100],
-           ["2017-01-20", 200],
-           [1485907200, 300],
-           ["2017-02-05 15:20:00", 400],
-           ["2017-02-15 22:59:59", 500]
-         ],
-         dataLimitFrom: "2017-01-09 00:00:00",
-         dataLimitTo: "2017-02-15 22:59:59",
-         unit: 's'
-       }
-     }
-   });
- }
-
- render() {
-   return (
-     <div className="chart-wrapper">
-       <div id="chartTimeChart" className="chart"></div>
-     </div>
-   );
- }
+function ZoomCharts(props: { type: ChartType }) {
+  return (
+      <Chart type={props.type} settings={{
+        data: [
+          {
+            preloaded: {
+              values: [
+                ["2017-01-09 00:00:00", 100],
+                ["2017-01-20", 200],
+                [1485561600000, 300],
+                ["2017-02-05 15:20:00", 400],
+                ["2017-02-15 22:59:59", 500]
+              ],
+              from: "2017-01-09 00:00:00",
+              to: "2017-02-15 22:59:59",
+              unit: "d"
+            }
+          }
+        ]
+      }}/>
+  );
 }
 
 export default ZoomCharts;
 ```
 
-### src/index.js
+## Available Chart Components
 
-Render an instance of `ZoomCharts` into document.getElementById('root')
-```javascript
-import React from 'react';
-import ReactDOM from 'react-dom';
-import ZoomCharts from './ZoomCharts';
+The `@dvsl/react-zoomcharts` package exports the following chart components:
+- `TimeChart` - For time-based data visualization
+- `PieChart` - For multi-level pie and donut charts
+- `NetChart` - For network graph visualization
+- `FacetChart` - For multi-level column and line charts
+- `GeoChart` - For geospatial data visualization
+- `Chart` - Generic chart component that accepts a `type` prop
 
-ReactDOM.render(<ZoomCharts />, document.getElementById('root'));
+### Example: PieChart Configuration
+
+```tsx
+import { PieChart as Chart } from '@dvsl/react-zoomcharts';
+import '@dvsl/react-zoomcharts/zc.css';
+
+function PieChart() {
+  return (
+    <Chart settings={{
+        data: [
+          {
+            preloaded: {
+              subvalues: [
+                { id: "Alpha", name: "Alpha", value: 40 },
+                { id: "Beta", name: "Beta", value: 25 },
+                { id: "Gamma", name: "Gamma", value: 35 },
+              ]
+            }
+          }
+        ]
+      }} />
+  );
+}
+
+export default PieChart;
+```
+
+### Example: NetChart Configuration
+
+```tsx
+import { NetChart as Chart } from '@dvsl/react-zoomcharts';
+import '@dvsl/react-zoomcharts/zc.css';
+
+function NetChart() {
+  return (
+    <Chart settings={{
+      data: [
+        {
+          preloaded: {
+            nodes: [
+              { id: "node1", loaded: true },
+              { id: "node2", loaded: true },
+            ],
+            links: [
+              { from: "node1", to: "node2" }
+            ]
+          }
+        }
+      ]
+    }} />
+  );
+}
+
+export default NetChart;
+```
+
+### Example: FacetChart Configuration
+
+```tsx
+import { FacetChart as Chart } from '@dvsl/react-zoomcharts';
+import '@dvsl/react-zoomcharts/zc.css';
+
+function FacetChart() {
+  return (
+    <Chart settings={{
+      data: [
+        {
+          preloaded: {
+            subvalues: [
+              { id: "Alpha", name: "Alpha", value: 15 },
+              { id: "Beta", name: "Beta", value: 25 },
+              { id: "Gamma", name: "Gamma", value: 35 },
+            ]
+          }
+        }
+      ]
+    }} />
+  );
+}
+
+export default FacetChart;
+```
+
+### Example: GeoChart Configuration
+
+```tsx
+import { GeoChart as Chart } from '@dvsl/react-zoomcharts';
+import '@dvsl/react-zoomcharts/leaflet.css';
+
+function GeoChart() {
+  return (
+    <Chart settings={{
+      navigation: {
+        initialLat: 35,
+        initialLng: -100,
+      },
+      data: [{
+        preloaded: {
+          nodes: [
+            { id: "Squaw Valley", coordinates: [-119.181449, 36.707146], loaded: true },
+            { id: "Atlanta", coordinates: [-84.388846, 33.752504], loaded: true },
+            { id: "New York", coordinates: [-73.996705, 40.74838], loaded: true },
+            { id: "Lake Placid", coordinates: [-81.364918, 27.294474], loaded: true }
+          ],
+          west: -180,
+          south: 180,
+          east: -85.0511287798,
+          north: 85.0511287798
+        },
+        
+      }],
+      layers: [
+        {
+          name: "Points",
+          type: "items",
+        }
+      ]
+    }} />
+  );
+}
+
+export default GeoChart;
+```
+
+## Using Chart Components
+
+### src/main.tsx
+
+Import your chart component and render it in the root element:
+
+```tsx
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import './index.css';
+import ZoomCharts from './ZoomCharts.tsx';
+
+// Zoomcharts license and license key
+window.ZoomChartsLicense = "";
+window.ZoomChartsLicenseKey = "";
+
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
+    <div style={{ width: '100%', height: '100%' }}>
+      <ZoomCharts type={"TimeChart"} />
+    </div>
+  </StrictMode>,
+)
+
 ```
 
 ## Launch the server
 
 ```
-npm start
+npm run dev
 ```
-
